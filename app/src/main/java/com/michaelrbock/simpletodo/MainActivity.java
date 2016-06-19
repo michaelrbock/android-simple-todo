@@ -1,5 +1,6 @@
 package com.michaelrbock.simpletodo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+    private final int REQUEST_CODE = 20;
+
     ArrayList<String> todoItems;
     ArrayAdapter<String> aToDoAdapter;
     ListView lvItems;
@@ -29,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
         lvItems = (ListView) findViewById(R.id.lvItems);
         lvItems.setAdapter(aToDoAdapter);
         etNewItem = (EditText) findViewById(R.id.etNewItem);
+
         lvItems.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position,
@@ -39,9 +43,33 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+        lvItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                launchEditView(position);
+            }
+        });
     }
 
-    public void populateArrayItems() {
+    public void launchEditView(int position) {
+        Intent editToDoIntent = new Intent(MainActivity.this, EditItemActivity.class);
+        editToDoIntent.putExtra("todo_text", todoItems.get(position));
+        editToDoIntent.putExtra("todo_position", position);
+        startActivityForResult(editToDoIntent, REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+            String newTodoText = data.getExtras().getString("todo_text");
+            todoItems.set(data.getExtras().getInt("todo_position"), newTodoText);
+            aToDoAdapter.notifyDataSetChanged();
+            writeItems();
+        }
+    }
+
+    private void populateArrayItems() {
         todoItems = new ArrayList<String>();
         readItems();
         aToDoAdapter = new ArrayAdapter<String>(
@@ -51,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void onAddItem(View view) {
+    private void onAddItem(View view) {
         aToDoAdapter.add(etNewItem.getText().toString());
         etNewItem.setText("");
         writeItems();
