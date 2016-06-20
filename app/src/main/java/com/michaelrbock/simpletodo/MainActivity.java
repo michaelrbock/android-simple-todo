@@ -1,6 +1,8 @@
 package com.michaelrbock.simpletodo;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -9,16 +11,19 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+
+import nl.qbusict.cupboard.QueryResultIterable;
+
+import static nl.qbusict.cupboard.CupboardFactory.cupboard;
 
 public class MainActivity extends AppCompatActivity {
 
     private final int REQUEST_CODE = 20;
 
+    SQLiteDatabase db;
+
+    ArrayList<TodoModel> todoModels;
     ArrayList<String> todoItems;
     ArrayAdapter<String> aToDoAdapter;
     ListView lvItems;
@@ -28,7 +33,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        DatabaseHelper dbHelper = new DatabaseHelper(this);
+        db = dbHelper.getWritableDatabase();
+
         populateArrayItems();
+
         lvItems = (ListView) findViewById(R.id.lvItems);
         lvItems.setAdapter(aToDoAdapter);
         etNewItem = (EditText) findViewById(R.id.etNewItem);
@@ -37,9 +47,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position,
                                            long id) {
-                todoItems.remove(position);
-                aToDoAdapter.notifyDataSetChanged();
-                writeItems();
+                onDeleteItem(position);
                 return true;
             }
         });
@@ -63,15 +71,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
             String newTodoText = data.getExtras().getString("todo_text");
-            todoItems.set(data.getExtras().getInt("todo_position"), newTodoText);
+            int position = data.getExtras().getInt("todo_position");
+            todoModels.get(position).text = newTodoText;
+            todoItems.set(position, newTodoText);
             aToDoAdapter.notifyDataSetChanged();
-            writeItems();
+
+            cupboard().withDatabase(db).put(todoModels.get(position));
         }
     }
 
     private void populateArrayItems() {
         todoItems = new ArrayList<String>();
-        readItems();
+        readItemsFromDb();
         aToDoAdapter = new ArrayAdapter<String>(
                 this,
                 android.R.layout.simple_list_item_1,
@@ -79,29 +90,39 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void onAddItem(View view) {
-        aToDoAdapter.add(etNewItem.getText().toString());
+    public void onAddItem(View view) {
+        TodoModel newTodo = new TodoModel(
+                etNewItem.getText().toString(),
+                System.currentTimeMillis(),
+                "");
+        todoModels.add(newTodo);
+        aToDoAdapter.add(newTodo.text);
         etNewItem.setText("");
-        writeItems();
+
+        cupboard().withDatabase(db).put(newTodo);
     }
 
-    private void readItems() {
-        File fileDir = getFilesDir();
-        File file = new File(fileDir, "todo.txt");
-        try {
-            todoItems = new ArrayList<String>(FileUtils.readLines(file));
-        } catch (IOException e) {
+    private void onDeleteItem(int position) {
+        TodoModel toDelete = todoModels.remove(position);
+        todoItems.remove(position);
+        aToDoAdapter.notifyDataSetChanged();
 
-        }
+        cupboard().withDatabase(db).delete(toDelete);
     }
 
-    private void writeItems() {
-        File fileDir = getFilesDir();
-        File file = new File(fileDir, "todo.txt");
+    private void readItemsFromDb() {
+        todoModels = new ArrayList<TodoModel>();
+        todoItems = new ArrayList<String >();
+        Cursor todoCursor = cupboard().withDatabase(db).query(TodoModel.class).getCursor();
         try {
-            FileUtils.writeLines(file, todoItems);
-        } catch (IOException e) {
-
+            QueryResultIterable<TodoModel> itr =
+                    cupboard().withCursor(todoCursor).iterate(TodoModel.class);
+            for (TodoModel todo : itr) {
+                todoModels.add(todo);
+                todoItems.add(todo.text);
+            }
+        } finally {
+            todoCursor.close();
         }
     }
 }
