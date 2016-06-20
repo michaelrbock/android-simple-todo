@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -24,8 +23,7 @@ public class MainActivity extends AppCompatActivity {
     SQLiteDatabase db;
 
     ArrayList<TodoModel> todoModels;
-    ArrayList<String> todoItems;
-    ArrayAdapter<String> aToDoAdapter;
+    TodoModelAdapter aToDoAdapter;
     ListView lvItems;
     EditText etNewItem;
 
@@ -37,10 +35,8 @@ public class MainActivity extends AppCompatActivity {
         DatabaseHelper dbHelper = new DatabaseHelper(this);
         db = dbHelper.getWritableDatabase();
 
-        populateArrayItems();
+        populateArrayItemsAdapterAndListView();
 
-        lvItems = (ListView) findViewById(R.id.lvItems);
-        lvItems.setAdapter(aToDoAdapter);
         etNewItem = (EditText) findViewById(R.id.etNewItem);
 
         lvItems.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -62,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void launchEditView(int position) {
         Intent editToDoIntent = new Intent(MainActivity.this, EditItemActivity.class);
-        editToDoIntent.putExtra("todo_text", todoItems.get(position));
+        editToDoIntent.putExtra("todo_text", todoModels.get(position).text);
         editToDoIntent.putExtra("todo_position", position);
         startActivityForResult(editToDoIntent, REQUEST_CODE);
     }
@@ -73,21 +69,17 @@ public class MainActivity extends AppCompatActivity {
             String newTodoText = data.getExtras().getString("todo_text");
             int position = data.getExtras().getInt("todo_position");
             todoModels.get(position).text = newTodoText;
-            todoItems.set(position, newTodoText);
             aToDoAdapter.notifyDataSetChanged();
 
             cupboard().withDatabase(db).put(todoModels.get(position));
         }
     }
 
-    private void populateArrayItems() {
-        todoItems = new ArrayList<String>();
+    private void populateArrayItemsAdapterAndListView() {
         readItemsFromDb();
-        aToDoAdapter = new ArrayAdapter<String>(
-                this,
-                android.R.layout.simple_list_item_1,
-                todoItems);
-
+        aToDoAdapter = new TodoModelAdapter(this, todoModels);
+        lvItems = (ListView) findViewById(R.id.lvItems);
+        lvItems.setAdapter(aToDoAdapter);
     }
 
     public void onAddItem(View view) {
@@ -95,8 +87,7 @@ public class MainActivity extends AppCompatActivity {
                 etNewItem.getText().toString(),
                 System.currentTimeMillis(),
                 "");
-        todoModels.add(newTodo);
-        aToDoAdapter.add(newTodo.text);
+        aToDoAdapter.add(newTodo);
         etNewItem.setText("");
 
         cupboard().withDatabase(db).put(newTodo);
@@ -104,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void onDeleteItem(int position) {
         TodoModel toDelete = todoModels.remove(position);
-        todoItems.remove(position);
         aToDoAdapter.notifyDataSetChanged();
 
         cupboard().withDatabase(db).delete(toDelete);
@@ -112,14 +102,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void readItemsFromDb() {
         todoModels = new ArrayList<TodoModel>();
-        todoItems = new ArrayList<String >();
         Cursor todoCursor = cupboard().withDatabase(db).query(TodoModel.class).getCursor();
         try {
             QueryResultIterable<TodoModel> itr =
                     cupboard().withCursor(todoCursor).iterate(TodoModel.class);
             for (TodoModel todo : itr) {
                 todoModels.add(todo);
-                todoItems.add(todo.text);
             }
         } finally {
             todoCursor.close();

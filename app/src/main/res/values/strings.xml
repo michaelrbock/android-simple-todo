@@ -4,4 +4,7 @@
     <string name="add_item">Add a new item...</string>
     <string name="edit_item_title">Edit Item Below:</string>
     <string name="save">Save</string>
+    <string name="todo_text">Todo Text</string>
+    <string name="todo_date">Date</string>
+    <string name="todo_priority">Priority</string>
 </resources>
