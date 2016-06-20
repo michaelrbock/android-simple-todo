@@ -1,26 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/todo_text"
-        android:id="@+id/tvText" />
+        android:id="@+id/tvText"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/todo_date"
-        android:id="@+id/tvDate" />
+        android:id="@+id/tvDate"
+        android:layout_alignBottom="@+id/tvText"
+        android:layout_toLeftOf="@+id/tvPriority"
+        android:layout_toStartOf="@+id/tvPriority"
+        android:layout_marginRight="12dp"
+        android:layout_marginEnd="15dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/todo_priority"
-        android:id="@+id/tvPriority" />
-</LinearLayout>
+        android:id="@+id/tvPriority"
+        android:layout_alignTop="@+id/tvDate"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+</RelativeLayout>
