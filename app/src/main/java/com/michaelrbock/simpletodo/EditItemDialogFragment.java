@@ -46,6 +46,19 @@ public class EditItemDialogFragment extends DialogFragment
     }
 
     @Override
+    public void onResume() {
+        // Get existing layout params for the window.
+        ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
+
+        // Assign window properties to fill the parent.
+        params.width = WindowManager.LayoutParams.MATCH_PARENT;
+        params.height = WindowManager.LayoutParams.MATCH_PARENT;
+        getDialog().getWindow().setAttributes((WindowManager.LayoutParams) params);
+        
+        super.onResume();
+    }
+
+    @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 

@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">SimpleTodo</string>
     <string name="add">Add</string>
-    <string name="add_item">Add a new item...</string>
-    <string name="edit_item_title">Edit Item Below:</string>
+    <string name="add_item">Add a new item…</string>
+    <string name="edit_item_title">Edit Todo Item:</string>
     <string name="save">Save</string>
     <string name="todo_text">Todo Text</string>
     <string name="todo_date">Date</string>
