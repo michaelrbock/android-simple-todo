@@ -46,9 +46,13 @@ public class TodoModelAdapter extends ArrayAdapter<TodoModel> {
         }
 
         viewHolder.tvText.setText(todoModel.text);
-        Date date = new Date(todoModel.date);
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
-        viewHolder.tvDate.setText(sdf.format(date));
+        if (todoModel.date != 0L) {
+            Date date = new Date(todoModel.date);
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
+            viewHolder.tvDate.setText(sdf.format(date));
+        } else {
+            viewHolder.tvDate.setText("");
+        }
         viewHolder.tvPriority.setText(todoModel.priority);
 
         return convertView;

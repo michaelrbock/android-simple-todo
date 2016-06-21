@@ -12,6 +12,11 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by michaelbock on 6/20/16.
@@ -20,21 +25,26 @@ public class EditItemDialogFragment extends DialogFragment
         implements TextView.OnEditorActionListener {
 
     private EditText etTodoText;
+    private EditText etTodoDate;
+    private EditText etTodoPriority;
     private Button btnSave;
 
     public interface EditItemDialogListener {
-        void onFinishEditDialog(int position, String todoText);
+        void onFinishEditDialog(int position, String todoText, Long date, String priority);
     }
 
     public EditItemDialogFragment() {
         // Empty constructor is required for DialogFragment.
     }
 
-    public static EditItemDialogFragment newInstance(int position, String todoText) {
+    public static EditItemDialogFragment newInstance(int position, String todoText, Long date,
+                                                     String priority) {
         EditItemDialogFragment frag = new EditItemDialogFragment();
         Bundle args = new Bundle();
         args.putInt("todo_position", position);
         args.putString("todo_text", todoText);
+        args.putLong("todo_date", date);
+        args.putString("todo_priority", priority);
         frag.setArguments(args);
         return frag;
     }
@@ -54,7 +64,7 @@ public class EditItemDialogFragment extends DialogFragment
         params.width = WindowManager.LayoutParams.MATCH_PARENT;
         params.height = WindowManager.LayoutParams.MATCH_PARENT;
         getDialog().getWindow().setAttributes((WindowManager.LayoutParams) params);
-        
+
         super.onResume();
     }
 
@@ -74,10 +84,20 @@ public class EditItemDialogFragment extends DialogFragment
         // Get field from view.
         etTodoText = (EditText) view.findViewById(R.id.etTodoText);
         etTodoText.setOnEditorActionListener(this);
+        etTodoDate = (EditText) view.findViewById(R.id.etTodoDate);
+        etTodoPriority = (EditText) view.findViewById(R.id.etTodoPriority);
 
         // Fetch arguments from bundle and set text.
         String todoText = getArguments().getString("todo_text", "Todo Text");
         etTodoText.setText(todoText);
+        Long todoDate = getArguments().getLong("todo_date", 0L);
+        if (todoDate != 0L) {
+            Date date = new Date(todoDate);
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
+            etTodoDate.setText(sdf.format(date));
+        }
+        String todoPriority = getArguments().getString("todo_priority");
+        etTodoPriority.setText(todoPriority);
 
         // Show soft keyboard automatically and request to focus to field.
         etTodoText.requestFocus();
@@ -97,8 +117,22 @@ public class EditItemDialogFragment extends DialogFragment
     public void onSave() {
         // Return input text back to activity through the implemented listener.
         EditItemDialogListener listener = (EditItemDialogListener) getActivity();
-        listener.onFinishEditDialog(getArguments().getInt("todo_position"),
-                etTodoText.getText().toString());
+        Long todoDate = 0L;
+        if (!etTodoDate.getText().toString().equals("")) {
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
+            try {
+                Date date = (Date) sdf.parse(etTodoDate.getText().toString());
+                todoDate = date.getTime();
+            } catch (ParseException e) {
+                Toast.makeText(getContext(), "Error inputting date",
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+        listener.onFinishEditDialog(
+                getArguments().getInt("todo_position"),
+                etTodoText.getText().toString(),
+                todoDate,
+                etTodoPriority.getText().toString());
 
         // Close the dialog and return back to the parent activity.
         dismiss();

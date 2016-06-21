@@ -59,14 +59,21 @@ public class MainActivity extends AppCompatActivity
 
     private void launchEditFragment(int position) {
         FragmentManager fm = getSupportFragmentManager();
-        EditItemDialogFragment editItemDialogFragment = EditItemDialogFragment.newInstance(position,
-                todoModels.get(position).text);
+        TodoModel todoModel = todoModels.get(position);
+        EditItemDialogFragment editItemDialogFragment = EditItemDialogFragment.newInstance(
+                position,
+                todoModel.text,
+                todoModel.date,
+                todoModel.priority);
         editItemDialogFragment.show(fm, "fragment_edit_item");
     }
 
     @Override
-    public void onFinishEditDialog(int position, String todoText) {
-        todoModels.get(position).text = todoText;
+    public void onFinishEditDialog(int position, String todoText, Long date, String priority) {
+        TodoModel todoModel = todoModels.get(position);
+        todoModel.text = todoText;
+        todoModel.date = date;
+        todoModel.priority = priority;
         aToDoAdapter.notifyDataSetChanged();
 
         cupboard().withDatabase(db).put(todoModels.get(position));
@@ -80,10 +87,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onAddItem(View view) {
-        TodoModel newTodo = new TodoModel(
-                etNewItem.getText().toString(),
-                System.currentTimeMillis(),
-                "");
+        TodoModel newTodo = new TodoModel(etNewItem.getText().toString(), 0L, "");
         aToDoAdapter.add(newTodo);
         etNewItem.setText("");
 

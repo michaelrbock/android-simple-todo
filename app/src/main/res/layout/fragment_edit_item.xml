@@ -29,12 +29,35 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="date"
+        android:hint="@string/due_date_hint"
+        android:id="@+id/etTodoDate"
+        android:layout_below="@+id/etTodoText"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/priority_hint"
+        android:id="@+id/etTodoPriority"
+        android:layout_below="@+id/etTodoDate"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/save"
         android:id="@+id/btnSave"
-        android:layout_below="@+id/etTodoText"
+        android:layout_below="@+id/etTodoPriority"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 

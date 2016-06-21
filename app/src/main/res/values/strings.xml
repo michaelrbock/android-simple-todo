@@ -7,4 +7,6 @@
     <string name="todo_text">Todo Text</string>
     <string name="todo_date">Date</string>
     <string name="todo_priority">Priority</string>
+    <string name="due_date_hint">Due Date (MM/DD/YY)</string>
+    <string name="priority_hint">Priority (!, !!, !!!)</string>
 </resources>
