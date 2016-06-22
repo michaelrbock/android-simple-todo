@@ -26,12 +26,14 @@ The following **optional** features are implemented:
 The following **additional** features are TODOs:
 
 * [ ] Improve UI for inserting dates & priorities.
+* [ ] Sort list by due date, priority.
+* [ ] Implement FAB.
 
 ## Video Walkthrough
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+![GIF Walkthrough](simpletodo.gif)
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
