@@ -33,24 +33,20 @@
         android:inputType="textAutoCorrect"
         android:padding="@dimen/activity_vertical_margin"/>
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:hint="@string/priority_hint"
-        android:id="@+id/etTodoPriority"
+    <Spinner
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:id="@+id/spinTodoPriority"
         android:layout_below="@+id/etTodoText"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:padding="@dimen/activity_vertical_margin"/>
+        android:padding="@dimen/activity_vertical_margin"
+        android:background="@android:drawable/btn_dropdown"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/due_date"
         android:id="@+id/btnTodoDate"
-        android:layout_below="@+id/etTodoPriority"
+        android:layout_below="@+id/spinTodoPriority"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"

@@ -9,8 +9,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -24,10 +27,14 @@ public class EditItemDialogFragment extends DialogFragment
         implements TextView.OnEditorActionListener, DatePickerFragment.DatePickerDialogListener {
 
     private EditText etTodoText;
-    private EditText etTodoPriority;
+    private String todoPriority;
+    private Spinner spinTodoPriority;
     private Long todoDate;
     private Button btnTodoDate;
     private Button btnSave;
+
+    final String[] priorityOptions =
+            new String[]{"Priority", "Low (!)", "Medium (!!)", "High (!!!)"};
 
     public interface EditItemDialogListener {
         void onFinishEditDialog(int position, String todoText, Long date, String priority);
@@ -88,10 +95,10 @@ public class EditItemDialogFragment extends DialogFragment
             }
         });
 
-        // Get field from view.
+        // Get fields from view.
         etTodoText = (EditText) view.findViewById(R.id.etTodoText);
         etTodoText.setOnEditorActionListener(this);
-        etTodoPriority = (EditText) view.findViewById(R.id.etTodoPriority);
+        spinTodoPriority = (Spinner) view.findViewById(R.id.spinTodoPriority);
 
         // Fetch arguments from bundle and set text.
         String todoText = getArguments().getString("todo_text", "Todo Text");
@@ -100,8 +107,23 @@ public class EditItemDialogFragment extends DialogFragment
         todoDate = getArguments().getLong("todo_date", 0L);
         updateDateText();
 
-        String todoPriority = getArguments().getString("todo_priority");
-        etTodoPriority.setText(todoPriority);
+        todoPriority = getArguments().getString("todo_priority");
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+                getActivity(), android.R.layout.simple_spinner_dropdown_item, priorityOptions);
+        spinTodoPriority.setAdapter(arrayAdapter);
+        spinTodoPriority.setSelection(
+                arrayAdapter.getPosition(getPriorityShowString(todoPriority)));
+        spinTodoPriority.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                onPriorityChosen(pos);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                // do nothing :)
+            }
+        });
 
         // Show soft keyboard automatically and request to focus to field.
         etTodoText.requestFocus();
@@ -132,6 +154,10 @@ public class EditItemDialogFragment extends DialogFragment
         return false;
     }
 
+    public void onPriorityChosen(int position) {
+        todoPriority = getPriorityDataString(priorityOptions[position]);
+    }
+
     public void onSave() {
         // Return input text back to activity through the implemented listener.
         EditItemDialogListener listener = (EditItemDialogListener) getActivity();
@@ -139,7 +165,7 @@ public class EditItemDialogFragment extends DialogFragment
                 getArguments().getInt("todo_position"),
                 etTodoText.getText().toString(),
                 todoDate,
-                etTodoPriority.getText().toString());
+                todoPriority);
 
         // Close the dialog and return back to the parent activity.
         dismiss();
@@ -154,5 +180,31 @@ public class EditItemDialogFragment extends DialogFragment
     public void onFinishDatePicker(Long date) {
         todoDate = date;
         updateDateText();
+    }
+
+    private String getPriorityShowString(String excalamations) {
+        switch (excalamations) {
+            case "!":
+                return "Low (!)";
+            case "!!":
+                return "Medium (!!)";
+            case "!!!":
+                return "High (!!!)";
+            default:
+                return "Priority";
+        }
+    }
+
+    private String getPriorityDataString(String showString) {
+        switch (showString) {
+            case "Low (!)":
+                return "!";
+            case "Medium (!!)":
+                return "!!";
+            case "High (!!!)":
+                return "!!!";
+            default:
+                return "";
+        }
     }
 }

@@ -5,8 +5,6 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.DatePicker;
 
 import java.util.Calendar;
@@ -35,18 +33,6 @@ public class DatePickerFragment extends DialogFragment
         args.putLong("todo_date", date);
         frag.setArguments(args);
         return frag;
-    }
-
-    @Override
-    public void onResume() {
-        // Get existing layout params for the window.
-        ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
-
-        // Assign window properties to fill the parent.
-        params.height = WindowManager.LayoutParams.MATCH_PARENT;
-        getDialog().getWindow().setAttributes((WindowManager.LayoutParams) params);
-
-        super.onResume();
     }
 
     @NonNull
