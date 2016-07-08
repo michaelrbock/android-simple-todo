@@ -12,21 +12,21 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
  * Created by michaelbock on 6/20/16.
  */
 public class EditItemDialogFragment extends DialogFragment
-        implements TextView.OnEditorActionListener {
+        implements TextView.OnEditorActionListener, DatePickerFragment.DatePickerDialogListener {
 
     private EditText etTodoText;
-    private EditText etTodoDate;
     private EditText etTodoPriority;
+    private Long todoDate;
+    private Button btnTodoDate;
     private Button btnSave;
 
     public interface EditItemDialogListener {
@@ -72,7 +72,14 @@ public class EditItemDialogFragment extends DialogFragment
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Set up button.
+        // Set up button click listeners.
+        btnTodoDate = (Button) view.findViewById(R.id.btnTodoDate);
+        btnTodoDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDatePickerDialog();
+            }
+        });
         btnSave = (Button) view.findViewById(R.id.btnSave);
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,18 +91,15 @@ public class EditItemDialogFragment extends DialogFragment
         // Get field from view.
         etTodoText = (EditText) view.findViewById(R.id.etTodoText);
         etTodoText.setOnEditorActionListener(this);
-        etTodoDate = (EditText) view.findViewById(R.id.etTodoDate);
         etTodoPriority = (EditText) view.findViewById(R.id.etTodoPriority);
 
         // Fetch arguments from bundle and set text.
         String todoText = getArguments().getString("todo_text", "Todo Text");
         etTodoText.setText(todoText);
-        Long todoDate = getArguments().getLong("todo_date", 0L);
-        if (todoDate != 0L) {
-            Date date = new Date(todoDate);
-            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
-            etTodoDate.setText(sdf.format(date));
-        }
+
+        todoDate = getArguments().getLong("todo_date", 0L);
+        updateDateText();
+
         String todoPriority = getArguments().getString("todo_priority");
         etTodoPriority.setText(todoPriority);
 
@@ -103,6 +107,20 @@ public class EditItemDialogFragment extends DialogFragment
         etTodoText.requestFocus();
         getDialog().getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+    }
+
+    private void updateDateText() {
+        String todoDateString;
+        Date date;
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
+        if (todoDate == 0L) {
+            Calendar calendar = Calendar.getInstance();
+            date = calendar.getTime();
+        } else {
+            date = new Date(todoDate);
+        }
+        todoDateString = "Due Date: " + sdf.format(date);
+        btnTodoDate.setText(todoDateString);
     }
 
     @Override
@@ -117,17 +135,6 @@ public class EditItemDialogFragment extends DialogFragment
     public void onSave() {
         // Return input text back to activity through the implemented listener.
         EditItemDialogListener listener = (EditItemDialogListener) getActivity();
-        Long todoDate = 0L;
-        if (!etTodoDate.getText().toString().equals("")) {
-            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy");
-            try {
-                Date date = (Date) sdf.parse(etTodoDate.getText().toString());
-                todoDate = date.getTime();
-            } catch (ParseException e) {
-                Toast.makeText(getContext(), "Error inputting date",
-                        Toast.LENGTH_SHORT).show();
-            }
-        }
         listener.onFinishEditDialog(
                 getArguments().getInt("todo_position"),
                 etTodoText.getText().toString(),
@@ -136,5 +143,16 @@ public class EditItemDialogFragment extends DialogFragment
 
         // Close the dialog and return back to the parent activity.
         dismiss();
+    }
+
+    public void showDatePickerDialog() {
+        DatePickerFragment dateFragment = DatePickerFragment.newInstance(this, todoDate);
+        dateFragment.show(getFragmentManager(), "date_picker");
+    }
+
+    @Override
+    public void onFinishDatePicker(Long date) {
+        todoDate = date;
+        updateDateText();
     }
 }

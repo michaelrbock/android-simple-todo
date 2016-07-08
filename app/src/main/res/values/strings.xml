@@ -9,4 +9,5 @@
     <string name="todo_priority">Priority</string>
     <string name="due_date_hint">Due Date (MM/DD/YY)</string>
     <string name="priority_hint">Priority (!, !!, !!!)</string>
+    <string name="due_date">Due Date</string>
 </resources>
