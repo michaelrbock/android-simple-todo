@@ -23,9 +23,9 @@ The following **optional** features are implemented:
 * [X] Add support for selecting the priority of each todo item (and display in listview item)
 * [X] Tweak the style improving the UI / UX, play with colors, images or backgrounds
 
-The following **additional** features are TODOs:
+The following are **additional** features:
 
-* [ ] Improve UI for inserting dates & priorities.
+* [X] Improve UI for inserting dates & priorities.
 * [ ] Sort list by due date, priority.
 * [ ] Implement FAB.
 
